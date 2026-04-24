@@ -402,3 +402,101 @@ input:checked + .slider:before {
     border-radius: 10px;
     font-size: 1.1rem;
 }
+/* --- NEW: Featured Game Styles --- */
+.featured-section {
+    margin-bottom: 3rem;
+}
+
+.featured-card {
+    background: linear-gradient(135deg, var(--header-bg), #34495e);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    position: relative;
+    overflow: hidden;
+    flex-wrap: wrap; /* Allows wrapping on mobile */
+}
+
+.featured-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #f1c40f;
+    color: #333;
+    font-weight: bold;
+    padding: 0.5rem 1.5rem;
+    border-bottom-left-radius: 12px;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+.featured-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    background: white;
+    padding: 10px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.featured-info h3 { 
+    margin: 0 0 0.5rem 0; 
+    font-size: 1.8rem; 
+    color: white;
+}
+
+.featured-info p { 
+    margin: 0 0 1.5rem 0; 
+    font-size: 1.1rem; 
+    opacity: 0.9; 
+}
+
+.featured-btn {
+    background-color: #e74c3c;
+    color: white;
+    text-decoration: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+    font-weight: bold;
+    display: inline-block;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.featured-btn:hover { 
+    transform: translateY(-2px); 
+    background-color: #c0392b;
+    color: white;
+}
+
+/* --- NEW: Show More Button Styles --- */
+.hidden-game {
+    display: none !important;
+}
+
+.show-more-container {
+    text-align: center;
+    margin-top: 1rem;
+    grid-column: 1 / -1; /* Forces the button to span across all grid columns */
+}
+
+.show-more-btn {
+    background-color: transparent;
+    color: var(--link-color);
+    border: 2px solid var(--link-color);
+    padding: 0.6rem 1.5rem;
+    border-radius: 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.show-more-btn:hover {
+    background-color: var(--link-color);
+    color: white;
+}

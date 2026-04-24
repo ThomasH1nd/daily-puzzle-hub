@@ -137,7 +137,50 @@ function initializeApp() {
         localStorage.setItem('puzzleDate', today);
     }
 }
+// --- NEW: Helper to shuffle arrays randomly ---
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
 
+// --- NEW: Render Featured Game ---
+function renderFeaturedGame() {
+    const container = document.getElementById('featured-container');
+    const today = new Date().toDateString();
+    let featuredName = localStorage.getItem('featuredGameName');
+    let featuredDate = localStorage.getItem('featuredDate');
+
+    // If it's a new day, pick a new random game
+    if (featuredDate !== today || !featuredName) {
+        const randomGame = gamesList[Math.floor(Math.random() * gamesList.length)];
+        featuredName = randomGame.name;
+        localStorage.setItem('featuredGameName', featuredName);
+        localStorage.setItem('featuredDate', today);
+    }
+
+    const featuredGame = gamesList.find(g => g.name === featuredName) || gamesList[0];
+    
+    // Extract the domain to fetch the high-res favicon
+    const domain = new URL(featuredGame.url).hostname;
+    const iconUrl = `https://s2.googleusercontent.com/s2/favicons?domain=${domain}&sz=128`;
+
+    container.innerHTML = `
+        <div class="featured-section">
+            <div class="featured-card">
+                <div class="featured-badge">⭐ TODAY'S FEATURED GAME</div>
+                <img src="${iconUrl}" alt="${featuredGame.name} icon" class="featured-icon" onerror="this.src='icon.png'">
+                <div class="featured-info">
+                    <h3>${featuredGame.name}</h3>
+                    <p>${featuredGame.desc}</p>
+                    <a href="${featuredGame.url}" target="_blank" class="featured-btn">▶ Play featured puzzle</a>
+                </div>
+            </div>
+        </div>
+    `;
+}
 // 3. Helper to create a game card (UPDATED with Labels)
 function createCardElement(game) {
     const isDone = localStorage.getItem(game.name + "_done") === 'true';
@@ -218,13 +261,17 @@ function renderFilters() {
 }
 
 // 4. Logic to build the page
+// 4. Logic to build the page (UPDATED with Limits and Shuffling)
 function renderGames() {
     const container = document.getElementById('game-container');
     container.innerHTML = ''; 
     
+    // 1. Render Featured Game
+    renderFeaturedGame();
+
     const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 
-    // --- Render Favourites Section ---
+    // --- Render Favourites Section (No limits here, show them all) ---
     const favSection = document.createElement('div');
     favSection.className = 'category-section';
     
@@ -246,13 +293,11 @@ function renderGames() {
         const grid = favSection.querySelector('.games-grid');
         const favGames = gamesList.filter(game => favorites.includes(game.name));
         
-        favGames.forEach(game => {
-            grid.appendChild(createCardElement(game));
-        });
+        favGames.forEach(game => grid.appendChild(createCardElement(game)));
     }
     container.appendChild(favSection);
 
-    // --- Render All Other Categories ---
+    // --- Render All Other Categories (Shuffled, Limit to 6) ---
     const categories = [...new Set(gamesList.map(game => game.category))];
     
     categories.forEach(category => {
@@ -267,11 +312,37 @@ function renderGames() {
         `;
         
         const grid = section.querySelector('.games-grid');
-        const categoryGames = gamesList.filter(game => game.category === category);
+        let categoryGames = gamesList.filter(game => game.category === category);
         
-        categoryGames.forEach(game => {
-            grid.appendChild(createCardElement(game));
+        // Randomize the games for this category
+        categoryGames = shuffleArray(categoryGames);
+        
+        categoryGames.forEach((game, index) => {
+            const card = createCardElement(game);
+            
+            // If it's beyond the 6th item, hide it by default
+            if (index >= 6) {
+                card.classList.add('hidden-game');
+            }
+            grid.appendChild(card);
         });
+
+        // Add the "Show More" button if there are more than 6 games
+        if (categoryGames.length > 6) {
+            const btnContainer = document.createElement('div');
+            btnContainer.className = 'show-more-container';
+            btnContainer.innerHTML = `<button class="show-more-btn">Show more ${category} puzzles</button>`;
+            
+            // Logic to reveal hidden games when clicked
+            btnContainer.querySelector('button').addEventListener('click', function() {
+                const hiddenCards = grid.querySelectorAll('.hidden-game');
+                hiddenCards.forEach(card => card.classList.remove('hidden-game'));
+                this.remove(); // Remove the button after clicking
+            });
+
+            grid.appendChild(btnContainer);
+        }
+
         container.appendChild(section);
     });
 
